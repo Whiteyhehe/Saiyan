@@ -1,9 +1,5 @@
+-- Load OrionLib
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/OrionLib/OrionLib/main/OrionLib.lua"))()
-
-if not OrionLib then
-    warn("OrionLib failed to load!")
-    return
-end
 
 local Window = OrionLib:MakeWindow({Name = "My Game GUI", HidePremium = false})
 
@@ -12,8 +8,6 @@ local MainTab = Window:MakeTab({
     Icon = "rbxassetid://1234567890", -- Replace with your desired icon asset ID
     PremiumOnly = false
 })
-
-print("GUI Initialized") -- Debug message
 
 -- Local player reference
 local players = game:GetService("Players")
@@ -114,13 +108,11 @@ MainTab:AddToggle({
     end
 })
 
+-- Initialize OrionLib
+OrionLib:Init()
+
 -- Loop to check and execute actions based on toggle states
 while true do
     executeActions()
     wait(1)  -- Adjust the wait time as needed
 end
-
--- Initialize OrionLib
-OrionLib:Init()
-
-print("OrionLib Initialized") -- Debug message

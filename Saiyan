@@ -3,7 +3,7 @@ local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shle
 local Player = game.Players.LocalPlayer
 
 -- Create the main window
-local Window = OrionLib:MakeWindow({Name = "My GUI", HidePremium = false, SaveConfig = true, IntroEnabled = true})
+local Window = OrionLib:MakeWindow({Name = "Saiyan Battlegrounds", HidePremium = false, SaveConfig = true, IntroEnabled = true})
 
 -- Create the "Main" tab
 local MainTab = Window:MakeTab({

@@ -147,10 +147,6 @@ end
 -- Toggle handlers
 local function onToggleChanged(name, value)
     toggles[name] = value
-    if not value then
-        -- If the toggle is turned off, clear the arguments to avoid unnecessary events
-        args[name] = nil
-    end
 end
 
 -- Add toggles to the "Main" tab

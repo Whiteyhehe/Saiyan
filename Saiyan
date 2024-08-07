@@ -17,7 +17,8 @@ local toggles = {
     M1 = false,
     M2 = false,
     M3 = false,
-    Downslam = false
+    Downslam = false,
+    Autofarm = false
 }
 
 -- Define the selected hero
@@ -246,8 +247,49 @@ UniversalTab:AddButton({
     end
 })
 
+-- Create the "Autofarm" tab
+local AutofarmTab = Window:MakeTab({
+    Name = "Autofarm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Function to handle autofarm
+local autofarmEnabled = false
+local function autofarm()
+    while autofarmEnabled do
+        local targetPlayer = nil
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= Player and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                targetPlayer = player
+                break
+            end
+        end
+
+        while targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character.Humanoid.Health > 0 and autofarmEnabled do
+            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                Player.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+            end
+            wait(0.1)
+        end
+        wait(0.1)
+    end
+end
+
+-- Add autofarm toggle to the "Autofarm" tab
+AutofarmTab:AddToggle({
+    Name = "Autofarm",
+    Default = false,
+    Callback = function(value)
+        autofarmEnabled = value
+        if autofarmEnabled then
+            spawn(autofarm)
+        end
+    end
+})
+
 -- Show the window
 OrionLib:Init()
 
 -- Start the combat handling loop
-handleCombat()
+spawn(handleCombat)

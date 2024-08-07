@@ -1,118 +1,193 @@
--- Load OrionLib
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/OrionLib/OrionLib/main/OrionLib.lua"))()
+-- Load Orion Library
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local Player = game.Players.LocalPlayer
 
-local Window = OrionLib:MakeWindow({Name = "My Game GUI", HidePremium = false})
+-- Create the main window
+local Window = OrionLib:MakeWindow({Name = "My GUI", HidePremium = false, SaveConfig = true, IntroEnabled = true})
 
+-- Create the "Main" tab
 local MainTab = Window:MakeTab({
     Name = "Main",
-    Icon = "rbxassetid://1234567890", -- Replace with your desired icon asset ID
+    Icon = "rbxassetid://12345678", -- Replace with your icon ID if you want a custom icon
     PremiumOnly = false
 })
 
--- Local player reference
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-
--- Initialize hero mapping
-local heroMapping = {
-    Black = "CombatBlack",
-    Vegeta = "CombatVegeta",
-    Broly = "CombatBroly",
-    Gohan = "CombatGohan"
-}
-
--- Initialize variables
-local selectedHero = "Black" -- Default hero
+-- Define the toggles state
 local toggles = {
-    m1 = false,
-    m2 = false,
-    m3 = false,
-    downslam = false
+    M1 = false,
+    M2 = false,
+    M3 = false,
+    Downslam = false
 }
 
--- Function to execute actions based on toggle state and selected hero
-local function executeActions()
-    local remoteEvent = game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent
+-- Define the selected hero
+local selectedHero = "CombatBlack"
 
-    -- Define arguments for each action based on selected hero
+-- Dropdown menu for selecting the hero
+MainTab:AddDropdown({
+    Name = "Select Hero",
+    Default = "CombatBlack",
+    Options = {"CombatBlack", "CombatVegeta", "CombatBroly", "CombatGohan"},
+    Callback = function(option)
+        selectedHero = option
+    end
+})
+
+-- Function to handle the combat actions based on active toggles
+local function handleCombat()
     local args = {
-        m1 = {localPlayer.Character, heroMapping[selectedHero], "M1"},
-        m2 = {localPlayer.Character, heroMapping[selectedHero], "M2"},
-        m3 = {
-            {localPlayer.Character, heroMapping[selectedHero], "M1Stun"},
-            {localPlayer.Character, heroMapping[selectedHero], "M1SwingSFX"}
+        M3 = {
+            [1] = {
+                [1] = {
+                    [1] = Player.Character,
+                    [2] = selectedHero,
+                    [3] = "M1Stun"
+                },
+                [2] = "\15",
+                [3] = {
+                    [1] = Player.Character,
+                    [2] = selectedHero,
+                    [3] = "M1SwingSFX"
+                },
+                [4] = "\15"
+            }
         },
-        downslam = {localPlayer.Character, heroMapping[selectedHero], "DownSlam"}
+        Downslam = {
+            [1] = {
+                [1] = {
+                    [1] = Player.Character,
+                    [2] = selectedHero,
+                    [3] = "DownSlam"
+                },
+                [2] = "\15"
+            }
+        },
+        M2 = {
+            [1] = {
+                [1] = {
+                    [1] = Player.Character,
+                    [2] = selectedHero,
+                    [3] = "M2"
+                },
+                [2] = "\15"
+            }
+        },
+        M1 = {
+            [1] = {
+                [1] = {
+                    [1] = Player.Character,
+                    [2] = selectedHero,
+                    [3] = "M1"
+                },
+                [2] = "\15"
+            }
+        }
     }
-    
-    -- Apply effects to all players except the local player
-    for _, player in ipairs(players:GetPlayers()) do
-        if player ~= localPlayer and player.Character then
-            if toggles.m1 then
-                remoteEvent:FireServer(unpack(args.m1))
-            end
-            if toggles.m2 then
-                remoteEvent:FireServer(unpack(args.m2))
-            end
-            if toggles.m3 then
-                remoteEvent:FireServer(unpack(args.m3))
-            end
-            if toggles.downslam then
-                remoteEvent:FireServer(unpack(args.downslam))
+
+    while true do
+        -- Apply effects to all players except the local player
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= Player and player.Character then
+                if toggles.M3 then
+                    table.insert(args.M3[1], {
+                        [1] = player.Character,
+                        [2] = selectedHero,
+                        [3] = "M1Impact3"
+                    })
+                    table.insert(args.M3[1], "\15")
+                end
+
+                if toggles.Downslam then
+                    table.insert(args.Downslam[1], {
+                        [1] = player.Character,
+                        [2] = selectedHero,
+                        [3] = "DownSlam"
+                    })
+                    table.insert(args.Downslam[1], "\15")
+                end
+
+                if toggles.M2 then
+                    table.insert(args.M2[1], {
+                        [1] = player.Character,
+                        [2] = selectedHero,
+                        [3] = "M2"
+                    })
+                    table.insert(args.M2[1], "\15")
+                end
+
+                if toggles.M1 then
+                    table.insert(args.M1[1], {
+                        [1] = player.Character,
+                        [2] = selectedHero,
+                        [3] = "M1"
+                    })
+                    table.insert(args.M1[1], "\15")
+                end
             end
         end
+
+        -- Fire the events based on active toggles
+        if toggles.M3 then
+            game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args.M3))
+        end
+        if toggles.Downslam then
+            game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args.Downslam))
+        end
+        if toggles.M2 then
+            game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args.M2))
+        end
+        if toggles.M1 then
+            game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args.M1))
+        end
+
+        wait(1)  -- Adjust the wait time as needed
     end
 end
 
--- Add dropdown for selecting hero
-MainTab:AddDropdown({
-    Name = "Select Hero",
-    Default = "Black", -- Default selected value
-    Options = {"Black", "Vegeta", "Broly", "Gohan"}, -- List of options
-    Callback = function(selected)
-        selectedHero = selected
-        print("Selected Hero:", selectedHero) -- Print the selected hero for debugging
+-- Toggle handlers
+local function onToggleChanged(name, value)
+    toggles[name] = value
+    if not value then
+        -- If the toggle is turned off, clear the arguments to avoid unnecessary events
+        args[name] = nil
     end
-})
+end
 
 -- Add toggles to the "Main" tab
 MainTab:AddToggle({
-    Name = "M1 Toggle",
+    Name = "M1",
     Default = false,
-    Callback = function(state)
-        toggles.m1 = state
+    Callback = function(value)
+        onToggleChanged("M1", value)
     end
 })
 
 MainTab:AddToggle({
-    Name = "M2 Toggle",
+    Name = "M2",
     Default = false,
-    Callback = function(state)
-        toggles.m2 = state
+    Callback = function(value)
+        onToggleChanged("M2", value)
     end
 })
 
 MainTab:AddToggle({
-    Name = "M3 Toggle",
+    Name = "M3",
     Default = false,
-    Callback = function(state)
-        toggles.m3 = state
+    Callback = function(value)
+        onToggleChanged("M3", value)
     end
 })
 
 MainTab:AddToggle({
-    Name = "DownSlam Toggle",
+    Name = "Downslam",
     Default = false,
-    Callback = function(state)
-        toggles.downslam = state
+    Callback = function(value)
+        onToggleChanged("Downslam", value)
     end
 })
 
--- Initialize OrionLib
+-- Show the window
 OrionLib:Init()
 
--- Loop to check and execute actions based on toggle states
-while true do
-    executeActions()
-    wait(1)  -- Adjust the wait time as needed
-end
+-- Start the combat handling loop
+handleCombat()

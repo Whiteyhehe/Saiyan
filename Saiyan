@@ -141,7 +141,7 @@ local function handleCombat()
             game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args.M1))
         end
 
-        wait(0.002)  -- Adjust the wait time as needed
+        wait(1)  -- Adjust the wait time as needed
     end
 end
 
